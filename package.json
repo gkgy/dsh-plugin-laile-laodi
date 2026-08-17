@@ -1,0 +1,31 @@
+{
+  "name": "dsh-plugin-laile-didi",
+  "version": "1.0.0",
+  "description": "DSH 插件：每次助手回复结束时播放“来了，老弟”完成提示音（先显示文本，回复完毕再响）。A DeepSeek Harness (DSH) plugin that plays a greeting sound when every assistant reply finishes.",
+  "type": "module",
+  "main": "index.mjs",
+  "exports": {
+    ".": "./index.mjs"
+  },
+  "files": [
+    "index.mjs",
+    "assets",
+    "dynamic"
+  ],
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek-harness",
+    "cordis",
+    "plugin",
+    "audio",
+    "notification",
+    "tts",
+    "voice"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gkgy/dsh-plugin-laile-didi.git"
+  }
+}
