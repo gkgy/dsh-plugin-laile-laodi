@@ -1,4 +1,4 @@
-// dsh-plugin-laile-didi —— 动态插件 Client 代码体
+// dsh-plugin-laile-laodi —— 动态插件 Client 代码体
 // 用途:配合 dynamic/host.js,通过 cordis_define 以“动态插件”方式加载。
 // 把本文件内容原样填入 cordis_define 的 code.client 字段(它是一个函数体,以 return { 开头)。
 //
@@ -10,7 +10,7 @@ return {
     const slots = ctx.get('slots')
     if (slots === undefined) return
     slots.inject('conversation.input.dock', () => slots.register(
-      { name: 'conversation.input.dock', id: 'laile-didi', order: 100 },
+      { name: 'conversation.input.dock', id: 'laile-laodi', order: 100 },
       (props) => {
         // 已播放过的最后完成 turn;挂载时先用历史数据播种,旧回复不发声
         const played = React.useRef(null)
@@ -57,7 +57,7 @@ return {
         }, [props.session])
         return React.createElement('audio', {
           ref: audioRef,
-          src: '/laile-didi.mp3',
+          src: '/laile-laodi.mp3',
           preload: 'auto',
           style: { display: 'none' },
         })
