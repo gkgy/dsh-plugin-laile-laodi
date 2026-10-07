@@ -1,16 +1,21 @@
 {
   "name": "dsh-plugin-laile-laodi",
-  "version": "1.0.0",
-  "description": "DSH 插件：每次助手回复结束时播放“来了，老弟”完成提示音（先显示文本，回复完毕再响）。A DeepSeek Harness (DSH) plugin that plays a greeting sound when every assistant reply finishes.",
+  "version": "1.1.0",
+  "description": "DeepSeek Harness completion sounds: eight generated voices, persistent selection, and bottom-right controls.",
   "type": "module",
   "main": "index.mjs",
   "exports": {
-    ".": "./index.mjs"
+    ".": "./index.mjs",
+    "./client": "./client.js",
+    "./package.json": "./package.json"
   },
   "files": [
     "index.mjs",
+    "client.js",
+    "cordis.patch.yml",
     "assets",
-    "dynamic"
+    "dynamic",
+    "AUDIO_PROVENANCE.md"
   ],
   "keywords": [
     "dsh",
@@ -27,5 +32,17 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/gkgy/dsh-plugin-laile-laodi.git"
+  },
+  "scripts": {
+    "test": "node --test tests/*.test.cjs"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "immediately": true
+    }
   }
 }

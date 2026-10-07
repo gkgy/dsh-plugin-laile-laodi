@@ -1,113 +1,98 @@
-# dsh-plugin-laile-laodi · 来了老弟 (Here Comes, Bro!)
+# 来了老弟 · DeepSeek Harness 完成提示音
 
-> **中文**：一个 [DeepSeek Harness](https://github.com/deepseek-ai/dsh)（DSH）插件：每次助手回复**结束**时播放「来了，老弟」完成提示音 —— 先显示文本，回复完毕再响一声。
-> **English**: A [DeepSeek Harness](https://github.com/deepseek-ai/dsh) (DSH) plugin that plays the "来了，老弟 / Here comes, bro!" greeting sound when **every assistant reply finishes** — text first, sound last.
+助手回复结束后播放“来了，老弟”。支持八种音色，右下角切换与试听，选择会自动保存。
 
-[![Topic](https://img.shields.io/badge/topic-dsh--plugin-blue)](https://github.com/topics/dsh-plugin)
+## v1.1.0 更新
 
----
+- 修复 DSH 0.2.1 会话快照接口变化后不触发声音的问题：使用 `running → idle` 状态变化，不再读取已移除的 `turnEnds` / `nodes`。
+- 不为历史回复、会话切换或失败请求播放完成提示音。
+- 右下角提供音色选择和“测试提示音”，播放失败时显示原因。
+- 默认使用试听中选定的 **3 号·逗趣男声**，保持该样本原样；提供另外七种音色。
+- 用本地生成音频替换此前捆绑的真人录音。音频来源、生成参数和哈希见 [生成记录](AUDIO_PROVENANCE.md)。
 
-## ✨ Features / 功能
+## 音色
 
-**English**
+| 音色 | 类型 |
+| --- | --- |
+| 3号·逗趣男声（默认） | Qwen3-TTS VoiceDesign |
+| 低沉男声 | Qwen3-TTS VoiceDesign |
+| 清亮男声 | Qwen3-TTS VoiceDesign |
+| 沙哑大叔 | Qwen3-TTS VoiceDesign |
+| 温柔女声 | Qwen3-TTS VoiceDesign |
+| 活泼女声 | Qwen3-TTS VoiceDesign |
+| 卡通高音 | 3号样本变调 |
+| 电子机器人 | 3号样本调制和短回声 |
 
-- Plays the greeting sound automatically the moment **each assistant reply finishes** — a natural "this reply is done" cue.
-- **Audio-first or text-first — your choice**: this repo defaults to "play at reply end"; to play as soon as a reply starts, see the comments in `dynamic/client.js`.
-- Plays exactly once per reply; historical replies are silent on mount.
-- Hidden implementation: the audio element is `display:none`, so it takes up no UI space.
+所有台词均为“来了，老弟”。这些音色是预先生成的文件，播放时无需加载语音模型，也无需外部语音 API。
 
-**中文**
+## 安装：静态 Bundle（推荐）
 
-- 每条助手回复**结束时**自动播放「来了，老弟」——作为「这条回复已完成」的提示音。
-- **先音频后文本 / 先文本后音频，由你决定**：本仓库默认是「回复结束播报」；如需「回复开始就播」，见 `dynamic/client.js` 注释。
-- 一轮回复只响一次，不重复；挂载时不为历史回复发声。
-- 隐藏实现：音频元素 `display:none`，不占用任何界面空间。
+先克隆本仓库到固定位置：
 
----
-
-## 🚀 Install / 安装
-
-### Option A：动态插件（推荐，无需重启）— Dynamic plugin (`cordis_define`)
-
-**English**: Ask the model in a DSH conversation to run `cordis_define`:
-
-- `code.host`: paste the contents of [`dynamic/host.js`](dynamic/host.js) (edit the `candidates` audio paths at the top first)
-- `code.client`: paste the contents of [`dynamic/client.js`](dynamic/client.js)
-- Then run `cordis_run` to activate and approve it in the UI.
-
-**中文**：在 DSH 对话里让模型执行 `cordis_define`：
-
-- `code.host`：填入 [`dynamic/host.js`](dynamic/host.js) 的内容（先修改顶部 `candidates` 里的音频路径）
-- `code.client`：填入 [`dynamic/client.js`](dynamic/client.js) 的内容
-- 然后 `cordis_run` 激活，在界面批准即可
-
-### Option B：静态宿主插件（挂进 profile）— Static host plugin
-
-**English**:
-
-1. Put this repository folder into a DSH profile (e.g. `~/.dsh/profiles/web/`).
-2. Append to `cordis.yml` (or `cordis.patch.yml`):
-
-```yaml
-- id: laile-laodi
-  name: ./dsh-plugin-laile-laodi/index.mjs
-  inject: [webServer]
-  config:
-    audioPath: ./dsh-plugin-laile-laodi/assets/laile-laodi.mp3
-    route: /laile-laodi.mp3
+```sh
+git clone https://github.com/gkgy/dsh-plugin-laile-laodi.git
 ```
 
-3. Load the client half as in Option A's `code.client` (plays when a reply finishes).
+在 DSH 桌面 profile 的 `package.json` 中，把本包加入 `dependencies` 和 `dsh.profile.bundles`。合并以下字段，保留已有插件和配置；将示例路径替换为克隆目录的绝对路径：
 
-**中文**：
-
-1. 把本仓库目录放进 DSH profile（如 `~/.dsh/profiles/web/`）。
-2. 在 `cordis.yml`（或 `cordis.patch.yml`）追加：
-
-```yaml
-- id: laile-laodi
-  name: ./dsh-plugin-laile-laodi/index.mjs
-  inject: [webServer]
-  config:
-    audioPath: ./dsh-plugin-laile-laodi/assets/laile-laodi.mp3
-    route: /laile-laodi.mp3
+```json
+{
+  "dependencies": {
+    "dsh-plugin-laile-laodi": "link:/absolute/path/dsh-plugin-laile-laodi"
+  },
+  "dsh": {
+    "profile": {
+      "bundles": ["dsh-plugin-laile-laodi"]
+    }
+  }
+}
 ```
 
-3. 客户端半部仍按方式 A 的 `code.client` 加载（回复结束触发播放）。
+在该 profile 目录使用其包管理器安装依赖（如 `pnpm install`），然后重启 Harness。桌面 profile 通常位于 `~/.dsh/profiles/desktop`。
 
-> ⚠️ **注意 / Note**：方式 B（静态宿主）与方式 A（动态宿主）**不要同时用 / do not use both**——两者都会注册同一个路由 `/laile-laodi.mp3`，会冲突。推荐组合 / Recommended combo:
-> - 静态宿主（方式 B，重启后音频路由自动恢复）**+ 客户端动态加载**（只用 `code.client`，不带 `code.host`）— Static host (Option B) + client loaded dynamically (only `code.client`, no `code.host`)
-> - 或纯动态（方式 A，重启后整体重新加载一次）— Or fully dynamic (Option A)
+本包同时声明宿主和客户端入口，Bundle 会自动加载二者。不要再重复添加动态宿主，否则音频路由会冲突。
 
----
+安装后，在 **Harness 窗口右下角** 选择音色，点击 **测试提示音**。用户手势可以启用浏览器声音播放。之后正常回复结束时自动播放所选声音。
 
-## ⚙️ Configuration / 配置
+## 动态加载（高级方式）
 
-| 参数 / Parameter | 默认值 / Default | 说明 / Description |
+也可将 [dynamic/host.js](dynamic/host.js) 和 [dynamic/client.js](dynamic/client.js) 分别填入 `cordis_define` 的 `code.host`、`code.client`，再使用 `cordis_run` 激活。先修改宿主代码顶部的 `ASSET_DIR`，指向本仓库的 `assets` 目录。
+
+动态代码使用与静态 Bundle 相同的音色和界面。不要同时启用两个宿主。动态加载的权限与生命周期由 Harness 管理；静态 Bundle 更适合重启后持续使用。
+
+## 配置
+
+| 宿主配置 | 默认值 | 说明 |
 | --- | --- | --- |
-| `audioPath` | `assets/laile-laodi.mp3`（包内自带 / bundled） | 提示音文件路径，可换成你自己的音频 / Path to the sound file; replace with your own audio |
-| `route` | `/laile-laodi.mp3` | 音频 HTTP 路由，客户端 `<audio src>` 必须与此一致 / Audio HTTP route; the client `<audio src>` must match |
+| `audioPath` | 包内 `assets/laile-laodi.mp3` | 无音色参数时使用的默认文件 |
+| `route` | `/laile-laodi.mp3` | 音频路由；修改时也需修改客户端 URL |
 
----
+客户端通过 `?voice=chosen-3` 等参数选择捆绑音色。只有预定义 ID 会被用于查找文件，URL 参数不会直接作为磁盘路径。
 
-## 🎵 Change the sound / 换音频
+浏览器的声音策略、系统静音和输出设备仍可能影响播放。“提示音已播放”表示播放器接受了请求，不能代替耳听确认。
 
-**English**: Rename your new audio file to `laile-laodi.mp3` and overwrite the file in `assets/` (or change `audioPath`), then restart the plugin.
+## 测试与重新生成
 
-**中文**：把新的音频文件命名为 `laile-laodi.mp3` 覆盖 `assets/` 里的文件（或修改 `audioPath`），重启插件即可。
+```sh
+npm test
+```
 
----
+测试覆盖静态/动态客户端的完成状态变化、历史和失败请求、重复播放，以及所有音频路由。
 
-## 🛡️ Audio source / 音频来源
+可选的生成工具位于 [scripts/generate_audio.py](scripts/generate_audio.py)，需要 Apple Silicon、Python、MLX 和 FFmpeg：
 
-**English**: The bundled sound comes from the free resource site `ttsc.chinaz.com` (站长素材); feel free to replace it with your own recording.
+```sh
+python3 -m venv .venv
+.venv/bin/pip install -r scripts/requirements-tts.txt
+.venv/bin/python scripts/generate_audio.py
+```
 
-**中文**：自带提示音来自站长素材 `ttsc.chinaz.com`（免费资源），可自由替换为你自己的录音。
+输出默认保存在被 Git 忽略的 `generated/`，不会直接覆盖已发布音频。种子和模型版本相同也不保证不同硬件或依赖环境生成完全相同的波形。
 
----
+## English
 
-## 📜 License
+A DeepSeek Harness completion-sound bundle with eight generated voice options, persistent selection, and compact bottom-right controls. It follows the DSH 0.2.1 Session lifecycle instead of removed conversation fields. Historical messages, session switches, and failed requests are silent.
 
-MIT — for the code. The bundled audio is a third-party free resource; verify licensing yourself if used commercially.
+Add this local repository as the `dsh-plugin-laile-laodi` dependency and a `dsh.profile.bundles` entry in your desktop profile, install dependencies, and restart Harness. Click **测试提示音** once to test playback. Audio is pre-generated; no TTS model runs during ordinary replies. See [audio provenance](AUDIO_PROVENANCE.md) for generation details.
 
-MIT — 代码部分。自带音频为第三方免费资源，商用请自行确认授权。
+Plugin code: [MIT](LICENSE). Model source and license information are documented separately in the audio provenance record.

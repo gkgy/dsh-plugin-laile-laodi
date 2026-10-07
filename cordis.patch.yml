@@ -1,0 +1,7 @@
+# Bundle patch: 宿主半部（webServer 音频路由）+ 客户端半部（回复结束时播放）
+- insert:
+    - id: laile-laodi-host
+      name: 'dsh-plugin-laile-laodi'
+      inject: [webServer]
+      config:
+        route: /laile-laodi.mp3

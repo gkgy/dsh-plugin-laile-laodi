@@ -1,23 +1,4 @@
-/**
- * dsh-plugin-laile-laodi — DeepSeek Harness (DSH) 宿主端插件
- *
- * 作用:把提示音通过 webServer 暴露为一个 HTTP 路由(默认 /laile-laodi.mp3)。
- * 浏览器客户端(见 dynamic/client.js)在每次助手回复结束时请求并播放它,
- * 从而做到“先显示文本,回复完毕再响一声‘来了,老弟’”。
- *
- * 安装(静态方式,与 obsidian-sync 等插件一致):
- *   1. 把本包放进 DSH profile 目录(或任意可被加载的位置);
- *   2. 在 cordis.yml 追加一行:
- *        - id: laile-laodi
- *          name: ./dsh-plugin-laile-laodi/index.mjs
- *          inject: [webServer]
- *          config:
- *            audioPath: ./dsh-plugin-laile-laodi/assets/laile-laodi.mp3
- *            route: /laile-laodi.mp3
- *   3. 重启 DSH,再按 dynamic/client.js 的方式加载客户端半部。
- *
- * 也可用 cordis_define 动态加载(见 dynamic/ 目录)。
- */
+/** Completion audio host. See README for Bundle installation and audio provenance. */
 import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
@@ -53,12 +34,20 @@ export function apply(ctx, config = {}) {
     kind: 'exact',
     path: route,
     handler: (req, res) => {
+      const voice = new URL(req.url ?? '/', 'http://localhost').searchParams.get('voice');
+      const allowed = ["chosen-3", "deep-male", "clear-male", "raspy-uncle", "gentle-female", "lively-female", "cartoon", "robot"];
+      const selectedPath = allowed.includes(voice)
+        ? path.join(__dirname, 'assets', voice + '.mp3') : audioPath;
+      let selected;
+      try { selected = readFileSync(selectedPath); } catch (_) {
+        res.writeHead(503); res.end('Notification audio unavailable'); return;
+      }
       res.writeHead(200, {
         'Content-Type': 'audio/mpeg',
-        'Content-Length': bytes.length,
+        'Content-Length': selected.length,
         'Cache-Control': 'no-cache',
       })
-      res.end(bytes)
+      res.end(selected)
     },
   })
   ctx.effect(() => dispose)

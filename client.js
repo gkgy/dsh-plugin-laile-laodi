@@ -1,4 +1,8 @@
-// Dynamic client function body; React is supplied by DSH.
+/* Completion sound for DSH 0.2.1 SessionSnapshot lifecycle. */
+window.__ModuleLoader__.load({
+  id: 'dsh-plugin-laile-laodi',
+  factory(require) {
+    const React = require('react');
 
     const h = React.createElement;
     const voices = [["chosen-3", "3号·逗趣男声"], ["deep-male", "低沉男声"], ["clear-male", "清亮男声"], ["raspy-uncle", "沙哑大叔"], ["gentle-female", "温柔女声"], ["lively-female", "活泼女声"], ["cartoon", "卡通高音"], ["robot", "电子机器人"]];
@@ -61,3 +65,6 @@
           { name: 'conversation.input.dock', id: 'laile-laodi', order: 100 }, LaileLaodi));
       },
     };
+
+  },
+});
